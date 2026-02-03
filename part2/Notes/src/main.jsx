@@ -1,5 +1,6 @@
-import { StrictMode } from 'react'
+import React, { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import ReactDOM from 'react-dom/client'  // <- make sure this is imported
 
 import App from './App.jsx'
 
