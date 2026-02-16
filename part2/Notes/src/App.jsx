@@ -1,65 +1,94 @@
-import { useState } from 'react';
-import Note from './components/Note.jsx'
+import { useState, useEffect } from "react"
+import axios from "axios"
+import Note from './components/Note'
+import noteService from './services/notes'
 
-const App = (props) => {
-  const [notes, setNotes] = useState(props.notes)
+const App = () => {
+  /* states */
+  const [notes, setNotes] = useState([])
   const [newNote, setNewNote] = useState(
     'a new note...'
   )
   const [showAll, setShowAll] = useState(true)
 
-  const notesToShow = showAll ? notes : notes.filter(note => note.important)
+  /* noteService & event handler functions */
+  useEffect(() => {
+    noteService
+      .getAll()
+      .then(initialNotes => {
+        setNotes(initialNotes)
+      })
+  })
 
-  // event handler functions
   const addNote = (event) => {
     event.preventDefault()
+
     const noteObject = {
       content: newNote,
-      important: Math.random() < 0.5,
-      id: String(notes.length + 1)
+      important: Math.random() < 0.5
     }
-    
-    setNotes(notes.concat(noteObject))
-    setNewNote('')
-    console.log("Button clicked", event.target)
-    // extra: event.target.elements returns all form controls (inputs, button) inside the form
+
+    noteService
+      .create(noteObject)
+      .then(returnedNote => {
+        setNotes(notes.concat(returnedNote))
+        setNewNote('')
+      })
   }
 
-  const handleNoteChange = (event) => {
+  const toggleImportanceOf = (id) => {    
+    const note = notes.find(n => n.id === id)
+    const changedNote = { ...note, important: !note.important }
+
+    noteService
+      .update(id, changedNote)
+      .then(returnedNote => {
+        //  returnedNote contains note that was changed
+        setNotes(notes.map(note => note.id === id ? returnedNote : note))
+      })
+      .catch(error => {
+        alert(
+          `the note ${note.content} was already deleted from the server`
+        )
+        setNotes(note.filter(n => n.id !== id))
+      })
+  }
+
+  //  <input onChange={} />
+  const handleNoteChange = (event) =>{
     console.log(event.target.value)
     setNewNote(event.target.value)
   }
-  
+
+  /* other functions */
+  // showAll is a state when true ? all the notes : important only  
+  const notesToShow = showAll ? notes : notes.filter(note => note.important)
+
+
   return (
     <div>
       <h1>Notes</h1>
       <div>
+        {/* when button is clicked, showAll when false ? button label 'show important' : 'show all' */}
         <button onClick={() => setShowAll(!showAll)}>
-          show {showAll ? 'important' : 'all'}
+          Show {showAll ? 'Important' : 'All'}
         </button>
       </div>
       <ul>
-        {/* when using JS, it must be wrapped in {} in a JSX template */}
-        { notesToShow.map(note =>
-          //  each list item needs a unique `key` prop so React can track it efficiently
-          //  the key can be a string or a number, but it is used internally by React
-          //  and is NOT accessible as a prop inside the component
-          //  JSX elements directly inside a map() call always need keys!
-          //  index not recommended to be used as keys because when the array length changes, the key also changes
-          //  Keys are required only on the direct elements returned by a map() call.
-          // <li key={note.id}>
-          //   {note.content}
-          // </li>
-          <Note key={note.id} note={note} />
+        { notesToShow.map(note => 
+          <Note 
+            key={note.id}
+            note={note}
+            toggleImportance={() => toggleImportanceOf(note.id)}
+          />
         )}
       </ul>
-      {/* target (form) stored in event.target */}
       <form onSubmit={addNote}>
         <input 
           value={newNote}
-          onChange={handleNoteChange}
+          onChange={handleNoteChange}      
         />
-        <button type="submit">save</button>
+        <button type='submit'>Save</button>
       </form>
     </div>
   )
