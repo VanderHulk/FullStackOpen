@@ -29,12 +29,7 @@
       "id": "e7a3",
       "content": "Axios is a JavaScript library used to make HTTP requests from the browser and Node.js. It is a tool for communicating with servers.",
       "important": false
-    },
-    {
-      "id": "5cc8",
-      "content": "Test",
-      "important": true
-    },
+    },   
     {
       "id": "a80a",
       "content": "Another Test",
