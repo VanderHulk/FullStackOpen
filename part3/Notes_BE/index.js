@@ -34,6 +34,8 @@ const unknownEndpoint = (request, response) => {
   response.status(404).send({ error: 'unknown endpoint' })
 }
 
+app.use(express.static('dist'))
+
 // allow cross-origin 
 // app.use(cors())
 app.use(cors())
@@ -100,6 +102,15 @@ app.post('/api/notes', (request, response) => {
   notes = notes.concat(note)  
   response.json(note)
 })
+
+app.put('/api/notes/:id', (request, response) => {
+  const id = request.params.id
+  const note = notes.find(n => n.id === String(id))
+  const changedNote = { ...note, important: !note.important}
+
+  notes = notes.map(note => note.id === id ? changedNote : note)
+  response.json(changedNote)
+}) 
 
 // Catch-all for unknown routes must come LAST
 app.use(unknownEndpoint)
