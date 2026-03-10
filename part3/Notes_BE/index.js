@@ -36,9 +36,7 @@ const unknownEndpoint = (request, response) => {
 
 // allow cross-origin 
 // app.use(cors())
-app.use(cors({
-  origin: 'http://localhost:5173'
-}))
+app.use(cors())
 
 // activate the json-parser
 // without this request.body would be undefined for JSON requests
@@ -107,6 +105,6 @@ app.post('/api/notes', (request, response) => {
 app.use(unknownEndpoint)
 
 // listening to port
-const PORT = 3001
+const PORT = process.env.PORT || 3001
 app.listen(PORT)
 console.log(`Server running on port ${PORT}`)
