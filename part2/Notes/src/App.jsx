@@ -19,7 +19,7 @@ const App = () => {
       .then(initialNotes => {
         setNotes(initialNotes)
       })
-  })
+  }, [])
 
   const addNote = (event) => {
     event.preventDefault()
@@ -49,7 +49,7 @@ const App = () => {
       })
       .catch(error => {
         setErrorMessage(
-          `Note ${note.content} was already removed from the server`
+          `Note "${note.content}" was already removed from the server`
         )
         setTimeout(() => {
           setErrorMessage(null)
