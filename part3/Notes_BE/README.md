@@ -1,5 +1,7 @@
 # Part 3: Node.js and Express
 
+**Disclaimer:** This project is not my original work. I am recreating it for learning purposes only.
+
 ## Steps:
 1. Create simple web server with Node.js
 
