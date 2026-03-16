@@ -1,1 +1,16 @@
+# VS Code settings
+.vscode
+
+# Node
 node_modules
+
+# Environment
+.env
+
+# REST CLIENT
+creating_new_note.rest
+deleting_note.rest
+get_all_notes.rest
+
+# Extras
+testMongo.js

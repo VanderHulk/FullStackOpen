@@ -1,25 +1,26 @@
+require('dotenv').config()
 const express = require('express')
+const Note = require('./models/note')
+
 const app = express()
 
-const cors = require('cors')
-
-let notes = [
-  {
-    id: "1",
-    content: "HTML is easy",
-    important: true
-  },
-  {
-    id: "2",
-    content: "Browser can execute only JavaScript",
-    important: false
-  },
-  {
-    id: "3",
-    content: "GET and POST are the most important methods of HTTP protocol",
-    important: true
-  }
-]
+// let notes = [
+//   {
+//     id: "1",
+//     content: "HTML is easy",
+//     important: true
+//   },
+//   {
+//     id: "2",
+//     content: "Browser can execute only JavaScript",
+//     important: false
+//   },
+//   {
+//     id: "3",
+//     content: "GET and POST are the most important methods of HTTP protocol",
+//     important: true
+//   }
+// ]
 
 // custom middleware
 const requestLogger = (request, response, next) => {
@@ -36,10 +37,6 @@ const unknownEndpoint = (request, response) => {
 
 app.use(express.static('dist'))
 
-// allow cross-origin 
-// app.use(cors())
-app.use(cors())
-
 // activate the json-parser
 // without this request.body would be undefined for JSON requests
 app.use(express.json())
@@ -51,37 +48,58 @@ app.get('/', (request, response) => {
 })
 
 app.get('/api/notes', (request, response) => {
-    response.json(notes)
+    Note.find({}).then(notes => {
+      response.json(notes)
+    })    
 })
 
 // route for fetching a single resource
 app.get('/api/notes/:id', (request, response) => {
-    // only the parts of the URL you define with ':' appear in request.params
-    const id = request.params.id
-    const note = notes.find(note => note.id === id)
-
-    if(note) {
+    // only the parts of the URL you define with ':' appear in request.params   
+    Note.findById(request.params.id)
+      .then(note => {
         response.json(note)
-    } else {
+      })
+      .catch(error => {
         response.status(404).end()
-    }
+      })
+    // When notes[] was stored in memory
+    // const id = request.params.id
+    // const note = notes.find(note => note.id === id)
 
+    // if(note) {
+    //     response.json(note)
+    // } else {
+    //     response.status(404).end()
+    // }
 })
 
 // deleting resources
-app.delete('/api/notes/:id', (request, response) => {
+app.delete('/api/notes/:id', (request, response) => {   
     const id = request.params.id
-    notes = notes.filter(note => note.id !== id)
 
-    response.status(204).end()
+    Note.findByIdAndDelete(id)
+      .then(() => {
+        response.status(204).end()
+        console.log(`${id} has been deleted`)
+      })
+      .catch(error => {
+        response.status(404).end()
+      })
+    // When notes[] was stored in memory
+    // const id = request.params.id
+    // notes = notes.filter(note => note.id !== id)
+
+    // response.status(204).end()
 })
 
-const generateID = () => {  
-  const maxId = notes.length > 0
-    ? Math.max(...notes.map(n => Number(n.id)))
-    : 0
-  return String(maxId + 1)
-}
+// When we had to generate an ID
+// const generateID = () => {  
+//   const maxId = notes.length > 0
+//     ? Math.max(...notes.map(n => Number(n.id)))
+//     : 0
+//   return String(maxId + 1)
+// }
 
 app.post('/api/notes', (request, response) => {  
   const body = request.body
@@ -92,30 +110,50 @@ app.post('/api/notes', (request, response) => {
     })
   }
 
-  const note = {
+  const note = new Note({
     content: body.content,
     important: body.important || false,
-    id: generateID()
-  }
+    // id: generateID()
+  })
 
-  console.log(note)
-  notes = notes.concat(note)  
-  response.json(note)
+  note.save().then(savedNote => {
+    response.json(savedNote)
+  })
+
+  // When notes[] was stored in memory
+  // console.log(note)
+  // notes = notes.concat(note)  
+  // response.json(note)
 })
 
 app.put('/api/notes/:id', (request, response) => {
   const id = request.params.id
-  const note = notes.find(n => n.id === String(id))
-  const changedNote = { ...note, important: !note.important}
 
-  notes = notes.map(note => note.id === id ? changedNote : note)
-  response.json(changedNote)
+  Note.findById(id)
+    .then(note => {      
+      const changedNote = { important: !note.important }
+
+      // { new: true } makes Mongoose return the updated document - old syntax
+      // { returnDocument: 'after' } - new syntax
+      return Note.findByIdAndUpdate(id, changedNote, { returnDocument: 'after' })
+    })
+    .then(result => {
+      response.json(result)
+    })
+
+  // When notes[] was stored in memory
+  // const note = notes.find(n => n.id === String(id))
+  // const changedNote = { ...note, important: !note.important}
+
+  // notes = notes.map(note => note.id === id ? changedNote : note)
+  // response.json(changedNote)
 }) 
 
 // Catch-all for unknown routes must come LAST
 app.use(unknownEndpoint)
 
 // listening to port
-const PORT = process.env.PORT || 3001
-app.listen(PORT)
-console.log(`Server running on port ${PORT}`)
+const PORT = process.env.PORT
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`)
+})

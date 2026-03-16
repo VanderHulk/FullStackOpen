@@ -76,3 +76,31 @@
     2. It can modify the request or response before it reaches the route.
     3. It must call next() to let the request continue.
     4. Route handler is the last stop - it sends the actual response.
+
+
+## Notes: mongoDB Atlas
+1. Mongo are **schemaless**, meaning that the database itself does not care about the structure of the data that is stored in the database.
+    *A schema defines the shape of the documents stored in any given collection*
+    ```javascript
+    const noteSchema = new mongoose.Schema({
+        content: String,
+        important: Boolean,
+    })
+    ```
+2. ```javascript
+    const Note = mongoose.model('Note', noteSchema)
+    ```
+    - 'Note' parameter is the singular name of the model
+    - Mongoose automatically looks for a collection named notes in MongoDB (lowercase + plural)
+    - if it does not exist, MongoDb will create it the first time you insert a document
+    - Mongoose handles the pluralization internally so now there is a 'notes' collection
+    - However if you would like to have a custom name, you could do this ('Note', noteSchema, 'customNameCollection')
+
+## dotenv Library for defining environment variables
+1. `npm install dotenv`
+2. create .env directory at the root of the project directory
+3. define the environment variables inside .env file
+    - add the database password in the URI
+4. add .env to .gitignore
+5. import before the database module
+    `require('dotenv').config()`
