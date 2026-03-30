@@ -45,6 +45,16 @@ const errorHandler = (error, request, response, next) => {
   next(error)
 }
 
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message)
+
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'malformatted id' })
+  }
+
+  next(error)
+}
+
 app.use(express.static('dist'))
 
 // activate the json-parser
@@ -141,22 +151,16 @@ app.put('/api/notes/:id', (request, response, next) => {
   const { content, important } = request.body
 
   Note.findById(id)
-    .then(note => {
-      if (!note) {
-        return response.status(404).end()
-      }  
-      
-      // live object directly from Mongoose document instance
-      note.content = content
-      note.important = important
+    .then(note => {      
+      const changedNote = { important: !note.important }
 
-      // .save() writes the changes back to MongoDB
-      // Monggoes validation runs here: checks required fields, types, and custom validators
-      return note.save().then((updatedNote) => {
-        response.json(updatedNote)
-      })
-    })    
-    .catch(error => next(error))
+      // { new: true } makes Mongoose return the updated document - old syntax
+      // { returnDocument: 'after' } - new syntax
+      return Note.findByIdAndUpdate(id, changedNote, { returnDocument: 'after' })
+    })
+    .then(result => {
+      response.json(result)
+    })
 
   // When notes[] was stored in memory
   // const note = notes.find(n => n.id === String(id))
