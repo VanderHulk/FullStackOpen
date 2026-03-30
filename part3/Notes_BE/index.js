@@ -152,8 +152,8 @@ app.put('/api/notes/:id', (request, response, next) => {
 
       // .save() writes the changes back to MongoDB
       // Monggoes validation runs here: checks required fields, types, and custom validators
-      return note.save().then((updateNote) => {
-        response.json(updateNote)
+      return note.save().then((updatedNote) => {
+        response.json(updatedNote)
       })
     })    
     .catch(error => next(error))
