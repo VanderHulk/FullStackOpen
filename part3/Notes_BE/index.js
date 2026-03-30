@@ -35,6 +35,16 @@ const unknownEndpoint = (request, response) => {
   response.status(404).send({ error: 'unknown endpoint' })
 }
 
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message)
+
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'malformatted id' })
+  }
+
+  next(error)
+}
+
 app.use(express.static('dist'))
 
 // activate the json-parser
@@ -54,15 +64,17 @@ app.get('/api/notes', (request, response) => {
 })
 
 // route for fetching a single resource
-app.get('/api/notes/:id', (request, response) => {
+app.get('/api/notes/:id', (request, response, next) => {
     // only the parts of the URL you define with ':' appear in request.params   
     Note.findById(request.params.id)
       .then(note => {
-        response.json(note)
+        if (note) {
+          response.json(note)
+        } else {
+          response.status(404).end()
+        }        
       })
-      .catch(error => {
-        response.status(404).end()
-      })
+      .catch(error => next(error))
     // When notes[] was stored in memory
     // const id = request.params.id
     // const note = notes.find(note => note.id === id)
@@ -75,7 +87,7 @@ app.get('/api/notes/:id', (request, response) => {
 })
 
 // deleting resources
-app.delete('/api/notes/:id', (request, response) => {   
+app.delete('/api/notes/:id', (request, response, next) => {   
     const id = request.params.id
 
     Note.findByIdAndDelete(id)
@@ -83,9 +95,7 @@ app.delete('/api/notes/:id', (request, response) => {
         response.status(204).end()
         console.log(`${id} has been deleted`)
       })
-      .catch(error => {
-        response.status(404).end()
-      })
+      .catch(error => next(error))
     // When notes[] was stored in memory
     // const id = request.params.id
     // notes = notes.filter(note => note.id !== id)
@@ -126,20 +136,27 @@ app.post('/api/notes', (request, response) => {
   // response.json(note)
 })
 
-app.put('/api/notes/:id', (request, response) => {
+app.put('/api/notes/:id', (request, response, next) => {
   const id = request.params.id
+  const { content, important } = request.body
 
   Note.findById(id)
-    .then(note => {      
-      const changedNote = { important: !note.important }
+    .then(note => {
+      if (!note) {
+        return response.status(404).end()
+      }  
+      
+      // live object directly from Mongoose document instance
+      note.content = content
+      note.important = important
 
-      // { new: true } makes Mongoose return the updated document - old syntax
-      // { returnDocument: 'after' } - new syntax
-      return Note.findByIdAndUpdate(id, changedNote, { returnDocument: 'after' })
-    })
-    .then(result => {
-      response.json(result)
-    })
+      // .save() writes the changes back to MongoDB
+      // Monggoes validation runs here: checks required fields, types, and custom validators
+      return note.save().then((updateNote) => {
+        response.json(updatedNote)
+      })
+    })    
+    .catch(error => next(error))
 
   // When notes[] was stored in memory
   // const note = notes.find(n => n.id === String(id))
@@ -151,6 +168,8 @@ app.put('/api/notes/:id', (request, response) => {
 
 // Catch-all for unknown routes must come LAST
 app.use(unknownEndpoint)
+
+app.use(errorHandler)
 
 // listening to port
 const PORT = process.env.PORT
