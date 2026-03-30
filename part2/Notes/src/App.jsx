@@ -9,7 +9,8 @@ const App = () => {
   /* states */
   const [notes, setNotes] = useState([])
   const [newNote, setNewNote] = useState('')
-  const [showAll, setShowAll] = useState(true)
+  const [showAll, setShowAll] = useState(true)  
+  const [selectedId, setSelectedId] = useState(null)
   const [errorMessage, setErrorMessage] = useState(null)
 
   /* noteService & event handler functions */
@@ -17,10 +18,11 @@ const App = () => {
     noteService
       .getAll()
       .then(initialNotes => {
+        // CHANGED        
         setNotes(initialNotes)
       })
   }, [])
-
+  
   const addNote = (event) => {
     event.preventDefault()
 
@@ -37,15 +39,16 @@ const App = () => {
       })
   }
 
-  const toggleImportanceOf = (id) => {    
-    const note = notes.find(n => n.id === id)
+  const updateImportance = () => {   
+    const note = notes.find(n => n.id === selectedId)    
     const changedNote = { ...note, important: !note.important }
-
+    
     noteService
-      .update(id, changedNote)
-      .then(returnedNote => {
+      .update(selectedId, changedNote)
+      .then(returnedNote => {        
         //  returnedNote contains note that was changed
-        setNotes(notes.map(note => note.id === id ? returnedNote : note))
+        setNotes(prevNotes => prevNotes.map(n => n.id === selectedId ? returnedNote : n))
+        setSelectedId(null)
       })
       .catch(error => {
         setErrorMessage(
@@ -54,38 +57,71 @@ const App = () => {
         setTimeout(() => {
           setErrorMessage(null)
         }, 5000)
-        setNotes(note.filter(n => n.id !== id))
+        setNotes(note.filter(n => n.id !== selectedId))
+        setSelectedId(null)
+      })
+  }
+
+  const deleteNote = () => {
+    noteService
+      .remove(selectedId)
+      .then(() => {
+        setNotes(prevNotes => 
+          prevNotes.filter(n => n.id !== selectedId))
+          console.log(`${selectedId} was successfully deleted`)
+          setSelectedId(null)
+      })
+      .catch(error => {
+        setErrorMessage(
+          `Note ID: "${selectedId}" was already removed from the server`
+        )
+        setTimeout(() => {
+          setErrorMessage(null)
+        }, 5000)
       })
   }
 
   //  <input onChange={} />
-  const handleNoteChange = (event) =>{
-    console.log(event.target.value)
-    setNewNote(event.target.value)
+  const handleNoteChange = (event) => {
+    setNewNote(event.target.value)    
+  }
+  
+  const handleRadioChoice = (id) => {    
+    setSelectedId(id)
   }
 
   /* other functions */
   // showAll is a state when true ? all the notes : important only  
   const notesToShow = showAll ? notes : notes.filter(note => note.important)
 
-
+  const changeImpt = selectedId
+    ? notes.find(n => n.id === selectedId).important
+      ? "NOT Important"
+      : "Important"
+    : null
+    
   return (
     <div>
       <h1>Notes</h1>
       <Notification message={errorMessage} />
       <div>
         {/* when button is clicked, showAll when false ? button label 'show important' : 'show all' */}
+        <button onClick={() => deleteNote()}>Delete Note</button>       
         <button onClick={() => setShowAll(!showAll)}>
           Show {showAll ? 'Important' : 'All'}
         </button>
       </div>
+      {
+        selectedId && <button onClick={() => updateImportance()}>{`Mark ${changeImpt}`}</button>
+      }  
       <ul>
-        { notesToShow.map(note => 
+        { notes && notesToShow.map(note =>          
           <Note 
             key={note.id}
             note={note}
-            toggleImportance={() => toggleImportanceOf(note.id)}
-          />
+            value={selectedId}
+            onChange={handleRadioChoice}
+          />          
         )}
       </ul>
       <form onSubmit={addNote}>

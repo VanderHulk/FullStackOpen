@@ -1,10 +1,13 @@
-const Note = ({ note, toggleImportance }) => {
-    const label = note.important
-        ? 'Make NOT Important' : 'Make Important'
+const Note = ({ note, value, onChange }) => {    
+    const color = note.important 
+        ? 'redText' : 'greyText'
+
     return (
         <li className='note'>
-            {note.content + ' '}
-            <button onClick={toggleImportance}>{label}</button>
+            {/* NEW */}
+            <label className={ color }>
+                <input type="radio" name="notes" value={note.id} checked={value === note.id} onChange={() => onChange(note.id)}/> {note.content + ' '}                
+            </label>           
         </li>
     )
 }

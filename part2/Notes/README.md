@@ -11,3 +11,13 @@ The app follows the **FullStackOpen course** examples, and I am rewriting the co
 - Practice using React `useState` and handling events
 - Understand component props and mapping lists
 - Get hands-on experience with Git/GitHub workflow
+
+## Revisions
+
+`27.3.2026`
+- Each note in the list has its own radio button for selection
+- New state, selecting a note updates selectedId
+- Note text color is red for IMPORTANT and gray for NOT
+- Removed individual buttons for changing note importance, 
+- Add a single button to update importance - `Mark Important/NOT Important`
+- Added `Delete Note` button

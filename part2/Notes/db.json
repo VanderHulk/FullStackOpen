@@ -8,47 +8,43 @@
     {
       "id": "2",
       "content": "Browser can execute only JavaScript",
-      "important": false
+      "important": true
     },
     {
       "id": "3",
       "content": "GET and POST are the most important methods of HTTP protocol",
-      "important": false
+      "important": true
     },
     {
       "id": "a3c1",
       "content": "REST is a set of architectural principes for designing networked applications",
-      "important": false
+      "important": true
     },
     {
       "id": "94cd",
       "content": "RESTful API is an implementation of REST principles",
-      "important": false
+      "important": true
     },
     {
       "id": "e7a3",
       "content": "Axios is a JavaScript library used to make HTTP requests from the browser and Node.js. It is a tool for communicating with servers.",
-      "important": false
-    },   
+      "important": true
+    },
     {
       "id": "a80a",
       "content": "Another Test",
-      "important": true
+      "important": false
     },
     {
       "id": "31cd",
       "content": "Let there be light",
-      "important": true
-    },
-    {
-      "id": "3776",
-      "content": "No more key error?",
       "important": false
     },
     {
       "id": "5063",
       "content": "Check me out",
-      "important": true
+      "important": false
     }
-  ]
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
 }
