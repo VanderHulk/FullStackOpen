@@ -45,16 +45,6 @@ const errorHandler = (error, request, response, next) => {
   next(error)
 }
 
-const errorHandler = (error, request, response, next) => {
-  console.error(error.message)
-
-  if (error.name === 'CastError') {
-    return response.status(400).send({ error: 'malformatted id' })
-  }
-
-  next(error)
-}
-
 app.use(express.static('dist'))
 
 // activate the json-parser
@@ -151,16 +141,19 @@ app.put('/api/notes/:id', (request, response, next) => {
   const { content, important } = request.body
 
   Note.findById(id)
-    .then(note => {      
-      const changedNote = { important: !note.important }
+    .then(note => {
+      if(!note) {
+        return response.status(404).end()
+      }
 
-      // { new: true } makes Mongoose return the updated document - old syntax
-      // { returnDocument: 'after' } - new syntax
-      return Note.findByIdAndUpdate(id, changedNote, { returnDocument: 'after' })
+      note.content = content
+      note.important = important
+     
+      return note.save().then((updatedNote) => {
+        response.json(updatedNote)
+      })
     })
-    .then(result => {
-      response.json(result)
-    })
+    .catch(error => next(error))
 
   // When notes[] was stored in memory
   // const note = notes.find(n => n.id === String(id))
