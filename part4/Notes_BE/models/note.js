@@ -5,6 +5,7 @@ const mongoose = require('mongoose')
 mongoose.set('strictQuery', false)
 
 // defining specific validation rules for each field in the schema
+// when .save() runs, mongoose checks the schema, if something does not match, throws a ValidationError
 const noteSchema = new mongoose.Schema({
   content: {
     type: String,

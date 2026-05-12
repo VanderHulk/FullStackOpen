@@ -98,6 +98,8 @@
     - Mongoose handles the pluralization internally so now there is a 'notes' collection
     - However if you would like to have a custom name, you could do this ('Note', noteSchema, 'customNameCollection')
 
+# Part 4: Testing the Backend
+
 ## dotenv Library for defining environment variables
 1. `npm install dotenv`
 2. create .env directory at the root of the project directory
@@ -124,3 +126,141 @@ The application was refactored into separate modules based on responsibility:
     ├── package.json
 ```
 This structure improves maintainability and enables easier testing by separating the application setup from the server startup.
+
+## Testing:
+1. Define the execution mode of the application with NODE_ENV environment variable in package.json
+```javascript
+    "start": "cross-env NODE_ENV=production node index.js",
+    "dev": "cross-env NODE_ENV=development node --watch index.js",
+    "test": "cross-env NODE_ENV=test node --test",
+```
+NODE_ENV gets the value test and goes staright into process.env. Why cross-env? It is for environment awareness because operating systems behave differently. With WINDOWS install cross-env `npm install cross-env` and use cross-env library in npm scripts defined in package.json.
+
+2. Use separate database for every test execution or use a database that is installed or running on the developer's local machine. There are many ways.
+
+3. Refactor utils/config.js to
+```javascript
+  const MONGODB_URI = process.env.NODE_ENV === 'test' 
+    ? process.env.TEST_MONGODB_URI
+    : process.env.MONGODB_URI
+```
+
+4. Set separate variables in .env file for testing and for development
+
+##  supertest
+1. Install super test `npm install --save-dev supertest`
+
+## testMongo.js: manual DB connection/interaction testing
+- connects to MongoDB
+- creates or reads documents
+
+## tests/note_api.test.js: Automated testing
+Ways to run tests:
+1. `only` method
+
+   `test.only('all notes are returned', async () => {...`
+   `npm test -- --test-only`
+   Only the `only` marked tests are executed
+   
+   CON: one forgets to remove `only` from the code
+2. Runs the tests found in the tests/note_api.test.js file
+   `npm test -- tests/note_api.test.js`
+3. --test-name-pattern can be used for running tests with a specific name
+   `npm test -- --test-name-pattern="a specific note is within the returned notes"`
+   The provided argument can refer to the name of the test or the describe block. It can also contain just a part of the name. 
+   
+   Example: `npm run test -- --test-name-pattern="notes"`
+   
+   That command willrun all of the tests that contain notes in their name.
+
+## Points to remember:
+- Tests do use the *real route handlers* but without the real network.
+
+  When there is this 
+    ```javascript
+      const app = require('../app')
+      const api = supertest(app)
+    ```
+  The Express app is plug into a "fake HTTP client." NO real network request!
+  ```
+  supertest
+     ↓
+  Express app (app.js)
+     ↓
+  Router (/api/notes)
+     ↓
+  controllers/notes.js
+     ↓
+  Mongoose / MongoDB
+     ↓
+  Response returned to test
+  ```
+
+  supertest calls the app directly in memory. supertest becomes the HTTP client.
+
+- strictEqual uses Object.is (compares objects by `reference`, not by shape or content)
+  *Reference means memory location*
+- deepStrictEqual checks if two values have the same structure, values, and types but NOT the same reference
+
+## async/await
+- it just makes errors look like normal throws `throw new Error(...)` but you still need to catch or pass them using try/catch
+  - *normal throws* behaves like a regular JavaScript error
+  - if you don't catch it, execution stops immediately, express doesn't automatically handle it, app may return 500 or behave unpredictably
+- something is wrong?
+  ```javascript
+  helper.initialNotes.forEach(async (note) => {
+    let noteObject = new Note(note)
+    await noteObject.save()
+  })
+  ```
+  - forEach starts looping immediately
+  - forEach note it calls the async function, that function returns a Promise but...
+    - does NOT collect those promises
+    - does NOT await them
+  ..so beforeEach finishes instantly and tests continue before there is data in the database
+  
+  **Solution:**
+  ```javascript
+  const noteObjects = helper.initialNotes
+    .map(note => new Note(note))
+  const promiseArray = noteObjects.map(note => note.save())
+  await Promise.all(promiseArray)
+  ```
+  
+  **Simpler way:**
+  ```javascript
+  await Note.insertMany(helper.initialNotes)
+  ```
+
+  **Remember:**
+  `Async work inside loops WITHOUT proper waiting (forEach does not await promises)`
+
+**Why is there no try/catch in this app?**
+- because error handling is centralized using Express error-handling middleware
+- route handlers are kept clean by delegating errors to next(error)
+
+  **Example of route handlers:**
+  - app.get('/notes', handler)
+  - app.post('/notes', handler)
+  - app.delete('/notes/:id', handler)
+- errorHandler middleware handles known errors (e.g. CastError, ValidationError) and sends proper HTTP responses
+- unknown errors are passed forward using next(error) or handled by Express default error handling
+- async errors must still be properly forwarded to this middleware
+
+**node:test**
+
+`assert`
+- .strictEqual(), are EXACTLY the same value using ===
+
+  example:
+  - assert.strictEqual(5, '5') fails 5 !== '5'
+
+- .notStrictEqual(), NOT EXACTLY equal
+
+  example:
+  - assert.notStrictEqual(blog.id, undefined) passes if blog.id exists
+
+- .deepStrictEqual(), have the same CONTENT and STRUCTURE (keys, values, nested structure, types) good for arrays & objects
+
+  example:
+  - { name: 'Shaula' } === { name: 'Shaula' } fails because objects compare by REFERENCE not content
