@@ -264,3 +264,46 @@ Ways to run tests:
 
   example:
   - { name: 'Shaula' } === { name: 'Shaula' } fails because objects compare by REFERENCE not content
+
+  **Token Authentication**
+  JWT JsonWebToken
+  ```javascript
+  const token = jwt.sign(
+    userForToken, // 1
+    process.env.SECRET, // 2
+    { expiresIn: 60*60 } // 3
+  )
+  ```
+  Gives user:
+  1. payload/data stored inside the token, it also includes the validity period
+     ```javascript
+     const userForToken = {
+       username: user.username,
+       id: user._id,
+     }
+     ```
+  2. the secret signing key, used to digitally sign the token so nobody can forge it
+  3. token validity
+
+  What does it actually return?
+  A long JWT encoded string. Three parts separated by dots HEADER.PAYLOAD.SIGNATURE
+
+  **New App Flow: **
+  ```
+  Client logs in
+      ↓
+  Server gives JWT token
+      ↓
+  Client stores token
+      ↓
+  Client sends:
+  Authorization: Bearer <token>
+      ↓
+  Server verifies token
+      ↓
+  Server extracts user identity from token
+      ↓
+  Authenticated action allowed
+  ```
+
+

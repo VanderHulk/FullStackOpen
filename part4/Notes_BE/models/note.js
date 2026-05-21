@@ -6,14 +6,24 @@ mongoose.set('strictQuery', false)
 
 // defining specific validation rules for each field in the schema
 // when .save() runs, mongoose checks the schema, if something does not match, throws a ValidationError
-const noteSchema = new mongoose.Schema({
-  content: {
-    type: String,
-    minLength: 5,
-    required: true
+const noteSchema = new mongoose.Schema(
+  {
+    content: {
+      type: String,
+      minLength: 5,
+      required: true
+    },
+    important: Boolean,
+    // creates a reference relationship from a note to a user
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    },  
   },
-  important: Boolean,
-})
+  {
+    timestamps: true
+  }
+)
 
 noteSchema.set('toJSON', {
   transform: (document, returnedObject) => {

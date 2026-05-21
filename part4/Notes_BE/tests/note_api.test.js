@@ -8,7 +8,7 @@ const supertest = require('supertest')
 
 const app = require('../app')
 const config = require('../utils/config')
-const helper = require('./test_helper')
+const helper = require('./testNote_helper')
 const Note = require('../models/note')
 
 // supertest(app) wraps app into a fake client
