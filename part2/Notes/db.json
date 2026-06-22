@@ -44,6 +44,11 @@
       "id": "5063",
       "content": "Check me out",
       "important": false
+    },
+    {
+      "content": "First test",
+      "important": true,
+      "id": "SMU72jiC6UM"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"

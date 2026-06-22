@@ -1,15 +1,30 @@
-const Note = ({ note, value, onChange }) => {    
-    const color = note.important 
-        ? 'redText' : 'greyText'
+const Note = ({ notes, user, eventHandlers }) => {
 
-    return (
-        <li className='note'>
-            {/* NEW */}
-            <label className={ color }>
-                <input type="radio" name="notes" value={note.id} checked={value === note.id} onChange={() => onChange(note.id)}/> {note.content + ' '}                
-            </label>           
-        </li>
-    )
+  const { updateImportance, deleteANote } = eventHandlers
+  
+  return (              
+    <ul className='notes'>
+      {notes.map(note => {
+        const color = note.important ? 'redText' : 'greyText'        
+        return (
+          <li key={note.id} className={color}> 
+            {note.content}
+            {user && (
+              <div>
+                <button className='btn-impt' type='button' onClick={() => updateImportance(note.id)}>
+                  {!note.important ? '📌' : '📄'}
+                </button>
+
+                {note.user === user.id && (
+                  <button className='btn-bin' type='button' onClick={() => deleteANote(note.id)}>🗑️</button>
+                )}
+              </div>
+            )}
+          </li>
+        )
+      })}
+    </ul>    
+  )
 }
 
 export default Note

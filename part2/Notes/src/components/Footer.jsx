@@ -5,7 +5,7 @@ const Footer = () => {
     }
 
     return (
-        <div style={footerStyle}>
+        <div className='footer' style={footerStyle}>
             <br />
             <p>
                 Note app, Department of Computer Science, University of Helsinki 2025
