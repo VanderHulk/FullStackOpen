@@ -97,7 +97,7 @@
     - if it does not exist, MongoDb will create it the first time you insert a document
     - Mongoose handles the pluralization internally so now there is a 'notes' collection
     - However if you would like to have a custom name, you could do this ('Note', noteSchema, 'customNameCollection')
-
+---
 # Part 4: Testing the Backend
 
 ## dotenv Library for defining environment variables
@@ -288,7 +288,7 @@ Ways to run tests:
   What does it actually return?
   A long JWT encoded string. Three parts separated by dots HEADER.PAYLOAD.SIGNATURE
 
-  **New App Flow: **
+  **New App Flow:**
   ```
   Client logs in
       ↓
@@ -305,5 +305,14 @@ Ways to run tests:
       ↓
   Authenticated action allowed
   ```
+---
+# Part 5: Login in frontend
 
+1. Added `tokenExtractor` and `userExtractor` middleware  
+   - Extracts JWT from `Authorization` header  
+   - Verifies token and attaches logged-in user to `request.user`  
+   - Enables protected routes (e.g. creating and deleting notes)
 
+2. Refactored login route  
+   - Returns `token`, `username`, `name`, and `user._id`  
+   - Frontend uses `user._id` for ownership-based UI logic
