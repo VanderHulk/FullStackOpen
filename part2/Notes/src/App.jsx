@@ -12,12 +12,9 @@ import NoteForm from './components/NoteForm'
 
 const App = () => {
   /* states */
-  const [notes, setNotes] = useState([])
-  const [newNote, setNewNote] = useState('')
+  const [notes, setNotes] = useState([])  
   const [showAll, setShowAll] = useState(true) 
-  const [message, setMessage] = useState(null)
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
+  const [message, setMessage] = useState(null)  
   const [user, setUser] = useState(null)
 
   useEffect( () => {
@@ -38,17 +35,11 @@ const App = () => {
     }
   }, [])
 
-  const addNote = async (event) => {
-    event.preventDefault()
-    try {
-      const noteObject = {
-        content: newNote,
-        important: Math.random() < 0.5
-      }
-  
+  const addNote = async (noteObject) => {
+   
+    try {  
       const returnedNote = await noteService.create(noteObject)
-      setNotes(prev => prev.concat(returnedNote))
-      setNewNote('')
+      setNotes(prev => prev.concat(returnedNote))      
 
       handleNotification(`"${returnedNote.content}" has been successfully added.`, 3000)
       
@@ -83,13 +74,15 @@ const App = () => {
     }
   }
 
-  const handleLogin = async (event) => {
-    event.preventDefault()      
+  const handleLogin = async (loginObject) => {
+
+    const { username, password } = loginObject
     
     try {
       const user = await loginService.login({
         username, password  
       })
+
       window.localStorage.setItem(
         'loggedNoteAppUser', JSON.stringify(user)
       )
@@ -97,8 +90,7 @@ const App = () => {
       noteService.setToken(user.token)
 
       setUser(user)
-      setUsername('')
-      setPassword('')
+
     } catch (error) {
       handleNotification(error.message, 5000)
     }
@@ -113,10 +105,6 @@ const App = () => {
     setTimeout(() => {
       setMessage(null)
     }, 3000)
-  }
-
-  const handleNoteChange = (event) => {
-    setNewNote(event.target.value)
   }
 
   const handleNotification = (message, duration) => {
@@ -147,23 +135,13 @@ const App = () => {
 
       {!user && (
         <Togglable buttonLabel='Login' >
-          <LoginForm
-            handleSubmit={handleLogin}
-            handleUsernameChange={({ target }) => setUsername(target.value)}
-            handlePasswordChange={({ target }) => setPassword(target.value)}
-            username={username}
-            password={password}
-          />
+          <LoginForm loginUser={handleLogin} />
         </Togglable>
       )}     
 
       {user && (    
         <Togglable buttonLabel='New Note'>
-          <NoteForm
-            handleSubmit={addNote}
-            handleChange={handleNoteChange}
-            value={newNote}
-          />
+          <NoteForm createNote={addNote} />
         </Togglable>
       )}
       <div>
@@ -178,8 +156,7 @@ const App = () => {
           updateImportance,
           deleteANote
         }}
-      />
-      
+      />      
 
       <Footer />
     </div>
