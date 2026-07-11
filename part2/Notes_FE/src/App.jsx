@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react'
-import axios from 'axios'
+import { useState, useEffect, useRef } from 'react'
 import noteService from './services/notes'
 import loginService from './services/login'
 
@@ -11,11 +10,19 @@ import Togglable from './components/Togglable'
 import NoteForm from './components/NoteForm'
 
 const App = () => {
+  const noteFormRef = useRef()
+
   /* states */
   const [notes, setNotes] = useState([])  
   const [showAll, setShowAll] = useState(true) 
   const [message, setMessage] = useState(null)  
-  const [user, setUser] = useState(null)
+  const [user, setUser] = useState(() => {
+    const loggedUserJSON = window.localStorage.getItem('loggedNoteAppUser')
+    if (loggedUserJSON) {
+      return JSON.parse(loggedUserJSON)
+    }
+    return null
+  })
 
   useEffect( () => {
     const fetchNotes = async () => {
@@ -26,18 +33,16 @@ const App = () => {
     fetchNotes()
   }, [])
 
-  useEffect(() => {
-    const loggedUserJSON = window.localStorage.getItem('loggedNoteAppUser')
-    if(loggedUserJSON) {
-      const user = JSON.parse(loggedUserJSON)
-      setUser(user)      
-      noteService.setToken(user.token)
-    }
-  }, [])
+  useEffect(() => {    
+      if (user) {
+        noteService.setToken(user.token)        
+      }
+  }, [user])
 
   const addNote = async (noteObject) => {
    
-    try {  
+    try {
+      noteFormRef.current.toggleVisibility()
       const returnedNote = await noteService.create(noteObject)
       setNotes(prev => prev.concat(returnedNote))      
 
@@ -101,10 +106,7 @@ const App = () => {
     noteService.setToken(null)
     setUser(null)
 
-    setMessage(`${user.username} logged out.`)
-    setTimeout(() => {
-      setMessage(null)
-    }, 3000)
+    handleNotification(`${user.username} logged out.`, 3000)
   }
 
   const handleNotification = (message, duration) => {
@@ -140,10 +142,11 @@ const App = () => {
       )}     
 
       {user && (    
-        <Togglable buttonLabel='New Note'>
+        <Togglable buttonLabel='New Note' ref={noteFormRef}>
           <NoteForm createNote={addNote} />
         </Togglable>
       )}
+
       <div>
         <h2 className='title-notes'>Notes</h2>
         <button className='btn show' type='button' onClick={() => setShowAll(!showAll)}>Show {showAll ? 'Important' : 'All'}</button>

@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "text": "buy milk",
+    "category": "shopping",
+    "done": true
+  },
+  {
+    "id": 2,
+    "text": "study FullStackOpen",
+    "category": "school",
+    "done": false
+  },
+  {
+    "id": 3,
+    "text": "form Finnish sentences",
+    "category": "school",
+    "done": false
+  }
+]
