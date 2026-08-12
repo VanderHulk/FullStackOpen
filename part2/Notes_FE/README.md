@@ -122,3 +122,31 @@ What problem does this solve?
   `React` Creates the component output
 - ## VERY IMPORTANT: Tests should adapt to the application behavior, not the other way around.
 
+- `npm test -- --test-concurrency=1` Running tests sequentially (in order) to prevent test files from competing with each other for shared resources/state. This prevents multiple test files from running at the same time.
+
+----- OR -----
+
+  add `fileParallelism: false` to vite.config.js
+
+
+
+
+### Important! Finding the elements during tests
+1. If a form has multiple input fields for example, use
+   - const inputs = screen.`getAllByRole('textbox')`
+     await user.type(`inputs[0]`, 'testing a form...')
+     
+     `getAllByRole` returns an array
+
+2. If the input field has a label, the field could be located using `getByLabelText`
+   - const input = screen.`getByLabelText`('content')
+
+3. If the input field has a placeholder, `getByPlaceholderText`
+   - const input = screen.`getByPlaceholderText`('write note content here')
+
+4. By querySelector of the container object, which is returned by render. Any CSS selector can be used with this method for searching elements in tests.
+   - Example: a unique id
+     const { container } = render(<NoteForm createNote={createNote} />)
+     const input = container.querySelector('#note-input'), where `#note-input` is the <input> tag's id
+
+

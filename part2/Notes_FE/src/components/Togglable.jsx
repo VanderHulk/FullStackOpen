@@ -20,7 +20,7 @@ const Togglable = ({ buttonLabel, children, ref }) => {
         <button className='btn' onClick={toggleVisibility}>{buttonLabel}</button>
       </div>
 
-      <div style={show}>        
+      <div style={show}>
         {children}
       </div>
       

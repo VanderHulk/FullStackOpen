@@ -12,13 +12,14 @@ const notes = [
   {
     id: 'note-001',
     content: 'Component testing is done with react-testing-library',
-    important: true  
+    important: false,
+    user: 'JK1357'
   }
 ]
 
 const eventHandlers = {
   updateImportance: vi.fn(),
-  deleteANote: vi.fn()  
+  deleteANote: vi.fn()
 }
 
 test('renders content', () => {
@@ -55,7 +56,23 @@ test('delete button is not visible without user', () => {
 })
 
 test('clicking the button calls event handler once', async () => {
-  const mockHandler = vi.fn()
-  
-  
+  const updateImportance = vi.fn()
+  const deleteANote = vi.fn()
+
+  render(
+    <Note 
+      notes={notes}
+      user={user}
+      eventHandlers={{      
+        updateImportance,
+        deleteANote
+      }}
+    />
+  )
+
+  const userEventSetup = userEvent.setup()
+  const button = screen.getByText('📌')
+  await userEventSetup.click(button)  
+
+  expect(updateImportance).toHaveBeenCalledTimes(1)
 })
