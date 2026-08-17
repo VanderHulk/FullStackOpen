@@ -1,0 +1,15 @@
+# VS Code settings
+.vscode
+
+# Node
+node_modules
+
+# Environment
+.env
+
+# REST CLIENT
+rests/
+
+# Extras
+testMongo.js
+utils/for_testing.js
