@@ -1,0 +1,29 @@
+#Note App: Frontend and Backend E2E Testing
+
+> 17.8.2026
+
+- Install playwright `npm init playwright@latest`
+
+- Commands for running tests: 
+  - `npm test` : running test
+  - `npm run test:report` : display detailed report
+  - `npm run test -- --ui` : running test via graphical UI
+
+- REMEMBER THIS! Playwright tests assume that "the system under test is running when the tests are executed." Playwright tests DO NOT START THE SYSTEM under test during testing.
+
+- ``` javascript
+    await page.screenshot({ path: 'screenshot.png' })
+  ```
+
+- Remember to run the `npm run start:test` script for testing.
+  or
+  Add a script in `playwright.config.js` to automatically run the test script from the backend
+  ```javascript
+    webServer: {
+      command: 'cd ../../Notes_BE && npm run start:test',
+      url: 'http://localhost:3001',
+      reuseExistingServer: !process.env.CI,
+    },
+  ```
+- test('a new note can be created'... failed at first because beforeEach... refreshes the page before every test resulting to user logging out.
+  Solution was to add a login helper function so we can log in whenever a test needs the user to login first without repeating the code. 
