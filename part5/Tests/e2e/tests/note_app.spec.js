@@ -1,9 +1,10 @@
 const { describe, beforeEach, test, expect } = require('@playwright/test')
+const { login, createNote } = require('./helper')
 
 describe('Note app', () => {
   beforeEach(async ({ page, request }) => {
-    await request.post('http://localhost:3001/api/testing/reset')
-    await request.post('http://localhost:3001/api/users', {
+    await request.post('/api/testing/reset')
+    await request.post('/api/users', {
       data: {
         name: 'Superuser',
         username: 'root',
@@ -11,27 +12,25 @@ describe('Note app', () => {
       }  
     })
 
-    await page.goto('http://localhost:5173')
-  })
-
-  const login = async (page, username = 'root', password = 'secret') => {
-    await page.getByRole('button', { name: 'Login' }).click()
-    await page.getByRole('textbox', { name: 'Username' }).fill('root')
-    /* or ('textbox').first()
-       or page.getByLabel('Username')
-    */
-    await page.getByRole('textbox', { name: 'Password' }).fill('secret')
-     /* or ('textbox').last()
-        or page.getByLabel('Password')
-    */
-    await page.getByRole('button', { name: 'Login' }).click()
-  }
+    await page.goto('/')
+  })  
 
   test('front page can be opened', async ({ page }) => {  
     const locator = page.getByText('Notes App')  
     await expect(locator).toBeVisible()
     await expect(page.getByText('Note app, Department of Computer Science, University of Helsinki 2025')).toBeVisible()
-  })  
+  })
+
+  test('login fails with wrong password', async ({ page }) => {
+    await login(page, 'root', 'wrong')
+    
+    const errorDiv = page.locator('.notification')
+    await expect(errorDiv).toContainText('invalid username or password')
+    await expect(errorDiv).toHaveCSS('border-style', 'solid')
+    await expect(errorDiv).toHaveCSS('border-color', 'rgb(255, 0, 0)')
+
+    await expect(page.getByText('Superuser logged in')).not.toBeVisible()
+  })
 
   describe('when logged in', () => {
     beforeEach(async ({ page }) => {
@@ -43,18 +42,14 @@ describe('Note app', () => {
     })
   
     test('a new note can be created', async ({ page }) => {
-      await page.getByRole('button', { name: 'New Note' }).click()
-      await page.getByRole('textbox').fill('A note created by playwright')
-      await page.getByRole('button', { name: 'Save' }).click()
+      await createNote(page, 'A note created by playwright')
   
-      await expect(page.getByText('A note created by playwright').last()).  toBeVisible()
+      await expect(page.getByText('A note created by playwright').last()).toBeVisible()
     })
 
     describe('and a note exists', () => {
       beforeEach(async ({ page }) => {
-        await page.getByRole('button', { name: 'New Note' }).click()
-        await page.getByRole('textbox').fill('Another note by playwright')
-        await page.getByRole('button', { name: 'save' }).click()
+        await createNote(page, 'Another note by playwright')
       })
 
       test('importance can be changed', async ({ page }) => {
@@ -62,6 +57,35 @@ describe('Note app', () => {
         await page.getByRole('button', { name: '📄' }).click()
         // make important '📌'
         await expect(page.getByText('📌')).toBeVisible()
+      })
+    })
+    
+    describe('and several notes exist', () => {
+      beforeEach(async ({ page }) => {
+        await createNote(page, 'First note')
+        await createNote(page, 'Second note')
+        await createNote(page, 'Third note')
+      })
+
+      test('one of those can be made unimportant', async ({ page }) => {
+        // await page.pause()
+        /* const otherNoteText = page.getByText('Second note')
+        const otherNoteElement = otherNoteText.locator('..')
+
+        await otherNoteElement
+          .getByRole('button', { name: '📄' }).click()
+      
+        await expect(otherNoteElement.getByRole('button', { name: '📌' })).toBeVisible() */
+        
+        /* We scope the selector to the specific <li> that contains "Second note",
+        so we target the correct button without relying on a fragile index like .nth().
+        This avoids ambiguity when several notes share the same button label. */
+
+        const secondNote = page.locator('li').filter({ hasText: 'Second note' })        
+
+        await secondNote.getByRole('button', { name: '📄' }).click()
+
+        await expect(secondNote.getByRole('button', { name: '📌' })).toBeVisible()
       })
     })
   })

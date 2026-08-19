@@ -8,7 +8,7 @@ const Note = ({ notes, user, eventHandlers }) => {
         const color = note.important ? 'redText' : 'greyText'        
         return (
           <li key={note.id} className={color}> 
-            {note.content}
+            <span>{note.content}</span>
             {user && (
               <div>
                 <button className='btn-impt' type='button' onClick={() => updateImportance(note.id)}>

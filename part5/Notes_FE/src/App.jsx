@@ -97,7 +97,8 @@ const App = () => {
       setUser(user)
 
     } catch (error) {
-      handleNotification(error.message, 5000)
+      const errorMessage = error.response?.data?.error || error.message
+      handleNotification(errorMessage, 5000)
     }
   }
 
