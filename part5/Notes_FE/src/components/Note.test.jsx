@@ -1,5 +1,7 @@
+import { MemoryRouter, Routes, Route } from 'react-router-dom'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+
 import Note from './Note'
 
 const user = {
@@ -22,57 +24,46 @@ const eventHandlers = {
   deleteANote: vi.fn()
 }
 
-test('renders content', () => {
-  render(
-    <Note 
-      notes={notes}
-      user={user}
-      eventHandlers={eventHandlers}
-    />
-  )  
+const renderNote = (userId, noteId) => {
+  return (
+    render(
+      <MemoryRouter initialEntries={[`/notes/${noteId}`]}>
+        <Routes>
+          <Route path='/notes/:id' element={
+            <Note
+              notes={notes}
+              userId={userId}
+              eventHandlers={eventHandlers}
+            />
+          }/>
+        </Routes>
+      </MemoryRouter>
+    )
+  )
+}
 
-  const element = screen.getByText('Component testing is done with react-testing-library')
+test('renders content', () => {  
+  renderNote(user.id, notes[0].id) 
 
-  // shows the rendered component
-  screen.debug(element) 
+  const element = screen.getByText('"Component testing is done with react-testing-library"')  
 
   expect(element).toBeDefined()
 })
 
 test('delete button is not visible without user', () => {
-  render(
-    <Note
-      notes={notes}
-      user={null}
-      eventHandlers={eventHandlers}
-    />  
-  )
+  renderNote(null, notes[0].id)
 
-  const button = screen.queryByText('🗑️')
-
-  screen.debug()
+  const button = screen.queryByText('Delete')  
 
   expect(button).toBeNull()
 })
 
 test('clicking the button calls event handler once', async () => {
-  const updateImportance = vi.fn()
-  const deleteANote = vi.fn()
-
-  render(
-    <Note 
-      notes={notes}
-      user={user}
-      eventHandlers={{      
-        updateImportance,
-        deleteANote
-      }}
-    />
-  )
+  renderNote(user.id, notes[0].id) 
 
   const userEventSetup = userEvent.setup()
-  const button = screen.getByText('📌')
+  const button = screen.getByText('Make Important')
   await userEventSetup.click(button)  
 
-  expect(updateImportance).toHaveBeenCalledTimes(1)
+  expect(eventHandlers.updateImportance).toHaveBeenCalledTimes(1)
 })

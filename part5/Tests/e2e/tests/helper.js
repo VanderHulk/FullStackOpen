@@ -14,12 +14,12 @@ const login = async (page, username = 'root', password = 'secret') => {
 }
 
 const createNote = async (page, content) => {
-  await page.getByRole('button', { name: 'New note' }).click()
-  await page.getByRole('textbox').fill(content)    
+  await page.getByRole('link', { name: 'Create Note' }).click()
+  await page.getByRole('button', { name: 'New Note' }).click()
+  await page.getByRole('textbox').fill(content)
   await page.getByRole('button', { name: 'Save' }).click()
-  // await page.getByText(content).waitFor() // course's
-  // or
-  await expect(page.getByText(content).last()).toBeVisible()
+
+  await expect(page.getByText(`"${content}" has been successfully added`)).toBeVisible()
 }
 
 export { login, createNote }

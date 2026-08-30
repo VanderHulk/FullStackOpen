@@ -12,6 +12,12 @@
 
 - REMEMBER THIS! Playwright tests assume that "the system under test is running when the tests are executed." Playwright tests DO NOT START THE SYSTEM under test during testing.
 
+- DO NOT FORGET TO ADD playwright scripts
+  ``` javascript
+    "test": "playwright test",
+    "test:report": "playwright show-report"
+  ```
+
 - ``` javascript
     await page.screenshot({ path: 'screenshot.png' })
   ```

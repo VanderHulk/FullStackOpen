@@ -18,6 +18,7 @@ logger.info('connecting to', config.MONGODB_URI)
 mongoose
   .connect(config.MONGODB_URI, { family: 4 })
   .then(() => {
+    console.log('connected to MongoDB')
     logger.info('connected to MongoDB')
   })
   .catch(error => {

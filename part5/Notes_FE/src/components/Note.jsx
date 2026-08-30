@@ -1,29 +1,29 @@
-const Note = ({ notes, user, eventHandlers }) => {
+import { useParams } from 'react-router-dom'
+
+const Note = ({ notes, userId, eventHandlers }) => {
 
   const { updateImportance, deleteANote } = eventHandlers
-  
-  return (              
-    <ul className='notes'>
-      {notes.map(note => {
-        const color = note.important ? 'redText' : 'greyText'        
-        return (
-          <li key={note.id} className={color}> 
-            <span>{note.content}</span>
-            {user && (
-              <div>
-                <button className='btn-impt' type='button' onClick={() => updateImportance(note.id)}>
-                  {!note.important ? '📌' : '📄'}
-                </button>
 
-                {note.user === user.id && (
-                  <button className='btn-bin' type='button' onClick={() => deleteANote(note.id)}>🗑️</button>
-                )}
-              </div>
-            )}
-          </li>
-        )
-      })}
-    </ul>    
+  const params = useParams()  
+  const note = notes.find(note => note.id === params.id)
+
+  const color = note?.important ? 'redText' : 'greyText'
+
+  return (
+    <div>
+      {note &&
+        <>                  
+          <p className={`note ${color}`}>"{note.content}"</p>
+          <button className='btn impt' type='button' onClick={() => updateImportance(note.id)}>
+            {!note.important ? 'Make Important' : 'Make Unimportant'}
+          </button>       
+        
+          {note.user === userId && (
+            <button className='btn delete' type='button' onClick={() => deleteANote(note.id)}>Delete</button>
+          )}
+        </>
+      }
+    </div>
   )
 }
 

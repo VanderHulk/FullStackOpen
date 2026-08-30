@@ -7,7 +7,7 @@
   "type": "commonjs",
   "main": "node index.js",
   "scripts": {
-    "build:ui": "rm -rf dist && cd ../../../FullStackOpen/part2/Notes && npm run build && cp -r dist ../../part3/Notes_BE",
+    "build:ui": "rm -rf dist && cd ../Notes_FE && npm run build && cp -r dist ../Notes_BE",
     "build": "npm run build:ui && echo 'Frontend copied into backend for Render.'",
     "start": "cross-env NODE_ENV=production node index.js",
     "dev": "cross-env NODE_ENV=development node --watch index.js",

@@ -88,7 +88,7 @@ li::before {
   padding: 5px 15px;
 }
 
-.btn:not(.show) {
+.btn:not(.show, .impt, .delete) {
   width: 90px;
 }
 
@@ -96,13 +96,18 @@ li::before {
   margin-left: auto;
 }
 
-.btn.show,
-.btn-impt {
+.btn.show {  
   margin-left: 1rem;
 }
 
-.btn-bin {
-  margin-left: 0.15rem;
+.btn.impt,
+.btn.delete {
+  display: inline;
+}
+
+.btn.impt {
+  margin-left: 2rem;
+  margin-right: 1rem;
 }
 
 .notification {
@@ -115,10 +120,18 @@ li::before {
   padding: 0.5rem;
 }
 
-.notes {
-  font-size: 1.15rem;
+.notes,
+.note {  
   margin: 1rem;
   padding-left: 1rem;
+}
+
+.notes {
+  font-size: 1.15rem;
+}
+
+.note {
+  font-size: 1.5rem;
 }
 
 .footer {
@@ -131,4 +144,11 @@ li::before {
 
 .greyText {
   color: grey;
+}
+
+/* views */
+
+.home-desc {
+  font-size: 1.15rem;
+  padding: 1.2rem;
 }

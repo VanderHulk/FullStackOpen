@@ -25,6 +25,7 @@ describe('Note app', () => {
     await login(page, 'root', 'wrong')
     
     const errorDiv = page.locator('.notification')
+    await page.locator('.notification').innerText()
     await expect(errorDiv).toContainText('invalid username or password')
     await expect(errorDiv).toHaveCSS('border-style', 'solid')
     await expect(errorDiv).toHaveCSS('border-color', 'rgb(255, 0, 0)')
@@ -42,21 +43,30 @@ describe('Note app', () => {
     })
   
     test('a new note can be created', async ({ page }) => {
-      await createNote(page, 'A note created by playwright')
-  
-      await expect(page.getByText('A note created by playwright').last()).toBeVisible()
+      const content = 'A note created by playwright'
+
+      await createNote(page, content)      
+
+      await page.getByRole('link', { name: 'Notes' }).click()
+      await expect(page.getByRole('link', { name: 'A note created by playwright' })).toBeVisible()
     })
 
     describe('and a note exists', () => {
+      const content = 'Another note by playwright'
+
       beforeEach(async ({ page }) => {
-        await createNote(page, 'Another note by playwright')
+        await createNote(page, content)        
+
+        await page.getByRole('link', { name: 'Notes' }).click()
+        await expect(page.getByRole('link', { name: 'Another note by playwright' })).toBeVisible()
       })
 
       test('importance can be changed', async ({ page }) => {
-        // make not important '📄'
-        await page.getByRole('button', { name: '📄' }).click()
-        // make important '📌'
-        await expect(page.getByText('📌')).toBeVisible()
+        // make not important
+        await page.getByRole('link', { name: content }).click()
+        await page.getByRole('button', { name: 'Make Unimportant' }).click()
+        // make important
+        await expect(page.getByRole('button', { name: 'Make Important' })).toBeVisible()
       })
     })
     
@@ -68,24 +78,14 @@ describe('Note app', () => {
       })
 
       test('one of those can be made unimportant', async ({ page }) => {
-        // await page.pause()
-        /* const otherNoteText = page.getByText('Second note')
-        const otherNoteElement = otherNoteText.locator('..')
 
-        await otherNoteElement
-          .getByRole('button', { name: '📄' }).click()
-      
-        await expect(otherNoteElement.getByRole('button', { name: '📌' })).toBeVisible() */
-        
-        /* We scope the selector to the specific <li> that contains "Second note",
-        so we target the correct button without relying on a fragile index like .nth().
-        This avoids ambiguity when several notes share the same button label. */
+        await page.getByRole('link', { name: 'Notes' }).click()
 
-        const secondNote = page.locator('li').filter({ hasText: 'Second note' })        
+        await page.getByRole('link', { name: 'Second note' }).click()    
 
-        await secondNote.getByRole('button', { name: '📄' }).click()
+        await page.getByRole('button', { name: 'Make Unimportant' }).click()
 
-        await expect(secondNote.getByRole('button', { name: '📌' })).toBeVisible()
+        await expect(page.getByRole('button', { name: 'Make Important' })).toBeVisible()
       })
     })
   })

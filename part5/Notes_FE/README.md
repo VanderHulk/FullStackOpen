@@ -14,7 +14,7 @@ The app follows the **FullStackOpen course** examples, and I am rewriting the co
 
 ## Revisions
 
-`27.3.2026`
+> 27.3.2026
 - Each note in the list has its own radio button for selection
 - New state, selecting a note updates selectedId
 - Note text color is red for IMPORTANT and gray for NOT
@@ -22,9 +22,7 @@ The app follows the **FullStackOpen course** examples, and I am rewriting the co
 - Add a single button to update importance - `Mark Important/NOT Important`
 - Added `Delete Note` button
 
----
-
-`22.6.2026`
+> 22.6.2026
 
 Refactored and extended Notes App with full authentication and authorization flow.
 
@@ -49,7 +47,9 @@ Refactored and extended Notes App with full authentication and authorization flo
 - Improved state updates using functional updates (`setNotes(prev => ...)`)
 - Cleaned up conditional rendering for login vs authenticated UI
 
-`6.7.2026`
+---
+
+> 6.7.2026
 
 ### Testing React Apps
 
@@ -57,9 +57,7 @@ Refactored and extended Notes App with full authentication and authorization flo
 - `npm install --save-dev @testing-library/react @testing-library/jest-dom`
 - add a script to package.json `"test": "vitest run"`
 
----
-
-## Things to remember:
+### Things to remember:
 
 `Lifting state up` moving state from a child component to a shared parent component *one parent component own the state and pass it down via props*
 
@@ -146,4 +144,65 @@ What problem does this solve?
      const { container } = render(<NoteForm createNote={createNote} />)
      const input = container.querySelector('#note-input'), where `#note-input` is the <input> tag's id
 
+> 21.8.2026
 
+### React Router
+- Excellent way to manage navigation in a website
+
+- `npm install react-router-dom` install React Router
+
+- Forgot to update the log that I have remove the radio buttons from every note to accomodate the course's Note exercises. A note has '📌' (make important) and '📄' (make not important) and a '🗑️' (delete) if the logged in user created the note.
+
+> 24-29.8.2026
+
+- I have totally forgotten to log my progress this week so this is a compact log for this week.
+
+- Started experimenting with React Router independently before following the course example.
+
+- Reviewed the difference between Express Router (backend request routing) and React Router (frontend URL/navigation routing).
+
+- Added BrowserRouter, Routes, Route, and Link to the Note App.
+
+- Refactored the Note App by creating a views/ directory for route-specific views Create, Home, and Notes
+
+- Kept reusable UI components in components/ and API communication in services/.
+
+- Kept global UI such as login/logout, notifications, and footer outside the individual routes.
+
+- Moved the notes list <ul> from the Note component into the Notes view.
+
+- Moved showAll and handleNoteShow into the Notes view because they are specific to displaying the notes list.
+
+- Changed individual notes into links using `/notes/:id`.
+
+- Learned that :id is a dynamic route parameter and can be retrieved with useParams().
+
+- Refactored the individual note route so the selected note can be identified from its URL.
+
+- Learned and reviewed the browser History API and its relationship to client-side routing.
+
+- Fixed note link styling using color: inherit so links retain the note's existing color.
+
+- Encountered and fixed a Windows/VS Code filename casing issue (home.jsx → Home.jsx) by restarting the development environment.
+
+- Started updating frontend tests to match the new React Router structure and note interaction flow.
+
+- E2E tests will also need to be updated because the note interaction now uses the /notes/:id route.
+
+> 30.8.2026
+
+- Fixing tests one by one. Now working on Note.test.jsx...
+
+- Found out that some tests are not working because of useParams()
+
+- The FSO course does not require to fix the tests, but I want everything to work before moving on.
+
+- ChatGPT is guiding me how to introduce useParams() into the tests using MemoryRouter
+
+- Fixed Note.test.jsx using MemoryRouter to simulate Routes and useParams 
+
+- Created a helper function for rendering Note
+
+- Confirmed that all frontend tests are successful!
+
+- Fixed E2E tests. I have actually forgotten how to run the playwright test and I remembered that there was some kind of UI where I can see the actual test being run. Then, I checked my notes and there it was `npm run test -- --ui`. And one more thing, I have also forgotten that you need to run the backend (test mode) and the frontend too before running the E2E tests. Everything works now! Phew!

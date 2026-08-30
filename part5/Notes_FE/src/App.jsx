@@ -2,19 +2,25 @@ import { useState, useEffect, useRef } from 'react'
 import noteService from './services/notes'
 import loginService from './services/login'
 
+import {
+  BrowserRouter as Router,
+  Routes, Route, Link  
+} from 'react-router-dom'
+
+import Home from './views/Home.jsx'
+import Create from './views/Create.jsx'
+import Notes from './views/Notes.jsx'
+
 import Note from './components/Note'
+import Login from './components/Login'
 import Notification from './components/Notification'
 import Footer from './components/Footer'
-import LoginForm from './components/LoginForm'
-import Togglable from './components/Togglable'
-import NoteForm from './components/NoteForm'
 
 const App = () => {
   const noteFormRef = useRef()
 
   /* states */
   const [notes, setNotes] = useState([])  
-  const [showAll, setShowAll] = useState(true) 
   const [message, setMessage] = useState(null)  
   const [user, setUser] = useState(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedNoteAppUser')
@@ -120,47 +126,46 @@ const App = () => {
     }, duration)
   }
 
-  const handleNoteShow = showAll ? notes : notes.filter(note => note.important)
-
+  // styles temporary
+  const padding = { padding: 10 }  
+  
   return (
-    <div>
+    <div>     
       <div className='title-container'>
         <h1>Notes App</h1>
-        {user && (         
-          <div className='logout-container'>
-            <p>{user.username} logged in</p>
-            <button className='btn' onClick={handleLogout}>Logout</button>
-          </div>
-        )}
+        <Login user={user} handleLogout={handleLogout} handleLogin={handleLogin} />
       </div>
 
       <Notification message={message}/>
 
-      {!user && (
-        <Togglable buttonLabel='Login' >
-          <LoginForm loginUser={handleLogin} />
-        </Togglable>
-      )}     
+      <Router>
+        <div style={padding}>
+          <Link style={padding} to='/'>Home</Link>
+          <Link style={padding} to='/notes'>Notes</Link>
+          <Link style={padding} to='/create'>Create Note</Link>
+        </div>        
 
-      {user && (    
-        <Togglable buttonLabel='New Note' ref={noteFormRef}>
-          <NoteForm createNote={addNote} />
-        </Togglable>
-      )}
+        <Routes>
+          <Route path='/notes/:id' element={
+            user && 
+              <Note
+                notes={notes}
+                userId={user.id}              
+                eventHandlers={{ updateImportance, deleteANote }}
+              />
+          }/>
 
-      <div>
-        <h2 className='title-notes'>Notes</h2>
-        <button className='btn show' type='button' onClick={() => setShowAll(!showAll)}>Show {showAll ? 'Important' : 'All'}</button>
-      </div>
-      
-      <Note 
-        notes={handleNoteShow}
-        user={user}
-        eventHandlers={{
-          updateImportance,
-          deleteANote
-        }}
-      />      
+          <Route path='/notes' element={
+            <Notes notes={notes} />
+          } />
+
+          <Route path='/create' element={           
+              user && <Create addNote={addNote} noteFormRef={noteFormRef} />       
+          } />
+          
+          <Route path='/' element={<Home />} />
+        </Routes>        
+      </Router>     
 
       <Footer />
     </div>
