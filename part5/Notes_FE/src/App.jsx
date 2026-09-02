@@ -1,10 +1,13 @@
 import { useState, useEffect, useRef } from 'react'
 import noteService from './services/notes'
 import loginService from './services/login'
+import { jwtDecode } from 'jwt-decode'
 
-import {
-  BrowserRouter as Router,
-  Routes, Route, Link  
+import {  
+  Routes, 
+  Route, 
+  Link,
+  useMatch  
 } from 'react-router-dom'
 
 import Home from './views/Home.jsx'
@@ -21,15 +24,16 @@ const App = () => {
 
   /* states */
   const [notes, setNotes] = useState([])  
-  const [message, setMessage] = useState(null)  
+  const [message, setMessage] = useState(null)
+  const [remainingTime, setRemainingTime] = useState(null)
   const [user, setUser] = useState(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedNoteAppUser')
     if (loggedUserJSON) {
       return JSON.parse(loggedUserJSON)
     }
     return null
-  })
-
+  })  
+  
   useEffect( () => {
     const fetchNotes = async () => {
       const initialNotes = await noteService.getAll()
@@ -40,10 +44,39 @@ const App = () => {
   }, [])
 
   useEffect(() => {    
-      if (user) {
-        noteService.setToken(user.token)        
-      }
+    if (user) {
+      noteService.setToken(user.token)        
+    }
   }, [user])
+
+  // log out user when time expires
+  useEffect(() => {    
+    if (user) {
+      const decodedToken = jwtDecode(user.token)
+      const remainingTime = decodedToken.exp * 1000 - Date.now()
+
+      const interval = setInterval(() => {
+        const remainingTime = decodedToken.exp * 1000 - Date.now()        
+        const min = Math.floor(remainingTime / 60000)
+        const sec = String(Math.floor((remainingTime % 60000) / 1000)).padStart(2, '0')        
+        setRemainingTime(`${min}:${sec}`)  
+      }, 1000)
+      
+      const timer = setTimeout(() => {
+        handleLogout()
+      }, remainingTime)
+
+      return () => {
+        clearInterval(interval)
+        clearTimeout(timer)
+      }
+    }
+  }, [user])
+
+  const match = useMatch(`/notes/:id`)
+  const note = match
+    ? notes.find(note => note.id === match.params.id)
+    : null  
 
   const addNote = async (noteObject) => {
    
@@ -100,7 +133,7 @@ const App = () => {
 
       noteService.setToken(user.token)
 
-      setUser(user)
+      setUser(user)      
 
     } catch (error) {
       const errorMessage = error.response?.data?.error || error.message
@@ -133,39 +166,37 @@ const App = () => {
     <div>     
       <div className='title-container'>
         <h1>Notes App</h1>
-        <Login user={user} handleLogout={handleLogout} handleLogin={handleLogin} />
+        <Login user={user} timer={remainingTime} handleLogout={handleLogout} handleLogin={handleLogin} />        
       </div>
 
       <Notification message={message}/>
 
-      <Router>
-        <div style={padding}>
-          <Link style={padding} to='/'>Home</Link>
-          <Link style={padding} to='/notes'>Notes</Link>
-          <Link style={padding} to='/create'>Create Note</Link>
-        </div>        
+      
+      <div style={padding}>
+        <Link style={padding} to='/'>Home</Link>
+        <Link style={padding} to='/notes'>Notes</Link>
+        <Link style={padding} to='/create'>Create Note</Link>
+      </div>        
 
-        <Routes>
-          <Route path='/notes/:id' element={
-            user && 
-              <Note
-                notes={notes}
-                userId={user.id}              
-                eventHandlers={{ updateImportance, deleteANote }}
-              />
-          }/>
+      <Routes>
+        <Route path='/notes/:id' element={
+          user && 
+            <Note
+              note={note}
+              userId={user.id}
+              eventHandlers={{ updateImportance, deleteANote }}
+            />
+        }/>
 
-          <Route path='/notes' element={
-            <Notes notes={notes} />
-          } />
-
-          <Route path='/create' element={           
-              user && <Create addNote={addNote} noteFormRef={noteFormRef} />       
-          } />
-          
-          <Route path='/' element={<Home />} />
-        </Routes>        
-      </Router>     
+        <Route path='/notes' element={
+          <Notes notes={notes} />
+         } />
+        <Route path='/create' element={
+            user && <Create addNote={addNote} noteFormRef={noteFormRef} />       
+        } />
+        
+        <Route path='/' element={<Home />} />
+      </Routes>
 
       <Footer />
     </div>

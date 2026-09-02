@@ -205,4 +205,25 @@ What problem does this solve?
 
 - Confirmed that all frontend tests are successful!
 
-- Fixed E2E tests. I have actually forgotten how to run the playwright test and I remembered that there was some kind of UI where I can see the actual test being run. Then, I checked my notes and there it was `npm run test -- --ui`. And one more thing, I have also forgotten that you need to run the backend (test mode) and the frontend too before running the E2E tests. Everything works now! Phew!
+- Fixed E2E tests. I had actually forgotten how to run the Playwright tests, but I remembered that there was some kind of UI where I could see the actual tests being run. Then, I checked my notes, and there it was: npm run test -- --ui. One more thing I had forgotten was that I need to run the backend in test mode and the frontend before running the E2E tests. Everything works now! Phew!
+
+> 31.8.2026
+
+- Learned how to use `useNavigate()`. 
+
+- Learned how to use `useMatch()`. It is not possible to use the useMatch hook in the same component that defines the routable part of the application. The course's solution was to move `<Router></Router>` to main.jsx like this:
+  ```js
+    ReactDOM.createRoot(document.getElementById('root')).render(
+      <StrictMode>
+        <Router>
+          <App />
+        </Router>
+      </StrictMode>
+    )
+  ```
+
+- `useMatch()` asks React Router "Does this current URL match this pattern?" For example: `const match = useMatch('/notes/:id')` It is a URL PATTERN DETECTOR.
+
+> 1.9.2026
+
+- Implemented a count down timer for logging user out when JWT has expired. Used `setInterval()` to update the countdown display and `setTimeout()` to trigger the handleLogout() function when the JWT expires.

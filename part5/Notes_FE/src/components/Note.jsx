@@ -1,13 +1,21 @@
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 
-const Note = ({ notes, userId, eventHandlers }) => {
+const Note = ({ note, userId, eventHandlers }) => {
 
   const { updateImportance, deleteANote } = eventHandlers
 
-  const params = useParams()  
-  const note = notes.find(note => note.id === params.id)
+  const id = useParams().id
+  const navigate = useNavigate()
+  
 
   const color = note?.important ? 'redText' : 'greyText'
+
+  const handleDelete = () => {
+    if (window.confirm(`Are you sure you would like to delete "${note.content}?"`)) {
+      deleteANote(note.id)
+      navigate('/notes')
+    }
+  }
 
   return (
     <div>
@@ -19,7 +27,7 @@ const Note = ({ notes, userId, eventHandlers }) => {
           </button>       
         
           {note.user === userId && (
-            <button className='btn delete' type='button' onClick={() => deleteANote(note.id)}>Delete</button>
+            <button className='btn delete' type='button' onClick={handleDelete}>Delete</button>
           )}
         </>
       }
