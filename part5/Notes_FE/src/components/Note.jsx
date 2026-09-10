@@ -1,12 +1,13 @@
 import { useParams, useNavigate } from 'react-router-dom'
 
+import { Button } from '@mui/material'
+
 const Note = ({ note, userId, eventHandlers }) => {
 
   const { updateImportance, deleteANote } = eventHandlers
 
   const id = useParams().id
-  const navigate = useNavigate()
-  
+  const navigate = useNavigate()  
 
   const color = note?.important ? 'redText' : 'greyText'
 
@@ -16,18 +17,18 @@ const Note = ({ note, userId, eventHandlers }) => {
       navigate('/notes')
     }
   }
-
+  
   return (
     <div>
       {note &&
         <>                  
           <p className={`note ${color}`}>"{note.content}"</p>
-          <button className='btn impt' type='button' onClick={() => updateImportance(note.id)}>
+          <Button className='btn impt' type='button' onClick={() => updateImportance(note.id)} variant='contained'>
             {!note.important ? 'Make Important' : 'Make Unimportant'}
-          </button>       
+          </Button>       
         
-          {note.user === userId && (
-            <button className='btn delete' type='button' onClick={handleDelete}>Delete</button>
+          {note.user.id === userId && (
+            <Button className='btn delete' type='button' onClick={handleDelete} variant='contained'>Delete</Button>
           )}
         </>
       }

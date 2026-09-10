@@ -306,13 +306,37 @@ Ways to run tests:
   Authenticated action allowed
   ```
 ---
+
 # Part 5: Login in frontend
 
-1. Added `tokenExtractor` and `userExtractor` middleware  
-   - Extracts JWT from `Authorization` header  
-   - Verifies token and attaches logged-in user to `request.user`  
+1. Added `tokenExtractor` and `userExtractor` middleware
+
+   - Extracts JWT from `Authorization` header
+   - Verifies token and attaches logged-in user to `request.user`
    - Enables protected routes (e.g. creating and deleting notes)
 
-2. Refactored login route  
-   - Returns `token`, `username`, `name`, and `user._id`  
+2. Refactored login route
+
+   - Returns `token`, `username`, `name`, and `user._id`
    - Frontend uses `user._id` for ownership-based UI logic
+
+3. Added `populate` for the `user` relationship
+
+   - GET notes populates `username` and `name` so the frontend can display the user's name in the Notes list
+   - POST notes populates the user after creating a note so the response includes the user's name
+   - PUT notes populates the user after updating a note so the response retains the populated user data
+
+4. Refactored the PUT route
+
+   - Converted the route from promise chaining to `async/await`
+   - Added `try/catch` and `next(error)` error handling
+   - Used `await note.save()` to update the note
+   - Populated the user after saving before returning the updated note
+
+5. Fixed user data disappearing after updating a note
+
+   - After changing a note's importance, the returned note initially contained only the user's ID
+   - This caused the user's name and Delete button to disappear from the frontend
+   - Fixed by populating the user before returning the updated note
+
+---

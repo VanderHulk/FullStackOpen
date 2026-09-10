@@ -24,15 +24,15 @@ const eventHandlers = {
   deleteANote: vi.fn()
 }
 
-const renderNote = (userId, noteId) => {
+const renderNote = (note, user) => {  
   return (
     render(
-      <MemoryRouter initialEntries={[`/notes/${noteId}`]}>
+      <MemoryRouter initialEntries={[`/notes/${note.id}`]}>
         <Routes>
           <Route path='/notes/:id' element={
-            <Note
-              notes={notes}
-              userId={userId}
+            user && <Note
+              note={note}
+              userId={user.id}
               eventHandlers={eventHandlers}
             />
           }/>
@@ -43,15 +43,15 @@ const renderNote = (userId, noteId) => {
 }
 
 test('renders content', () => {  
-  renderNote(user.id, notes[0].id) 
+  renderNote(notes[0], user)  
 
-  const element = screen.getByText('"Component testing is done with react-testing-library"')  
+  const element = screen.getByText('"Component testing is done with react-testing-library"')
 
   expect(element).toBeDefined()
 })
 
 test('delete button is not visible without user', () => {
-  renderNote(null, notes[0].id)
+  renderNote(notes[0], null)
 
   const button = screen.queryByText('Delete')  
 
@@ -59,7 +59,7 @@ test('delete button is not visible without user', () => {
 })
 
 test('clicking the button calls event handler once', async () => {
-  renderNote(user.id, notes[0].id) 
+  renderNote(notes[0], user) 
 
   const userEventSetup = userEvent.setup()
   const button = screen.getByText('Make Important')

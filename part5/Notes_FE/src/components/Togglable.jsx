@@ -1,4 +1,5 @@
 import { useState, useImperativeHandle } from 'react'
+import { Button } from '@mui/material'
 
 const Togglable = ({ buttonLabel, children, ref }) => {
   const [visible, setVisible]= useState(false)
@@ -17,14 +18,14 @@ const Togglable = ({ buttonLabel, children, ref }) => {
   return (
     <div className='togglable'>
       <div style={hide}>
-        <button className='btn' onClick={toggleVisibility}>{buttonLabel}</button>
+        <Button className='btn' onClick={toggleVisibility} variant='contained'>{buttonLabel}</Button>
       </div>
 
       <div style={show}>
         {children}
       </div>
       
-      <button className='btn togglable-left' style={show} onClick={toggleVisibility}>Cancel</button>
+      <Button className='btn cancel' style={show} onClick={toggleVisibility} variant='contained'>Cancel</Button>
     </div>
   )
 }

@@ -6,7 +6,8 @@ const Note = require('../models/note')
 const middleware = require('../utils/middleware')
 
 notesRouter.get('/', async (request, response) => {
-  const notes = await Note.find({})
+  const notes = await Note
+    .find({}).populate('user', {username: 1, name: 1})
   response.json(notes)
   // without async await
   /* Note.find({}).then(notes => {
@@ -36,9 +37,15 @@ notesRouter.post('/', middleware.userExtractor, async (request, response) => {
     user: user._id
   })
 
-  const savedNote = await note.save()  
+  const savedNote = await note.save()
+  await savedNote.populate('user', {
+    username: 1,
+    name: 1
+  })
+
   user.notes = user.notes.concat(savedNote._id)
   await user.save()
+  
   response.status(201).json(savedNote)
 })
 
@@ -75,26 +82,33 @@ notesRouter.delete('/:id', middleware.userExtractor, async (request, response) =
   //   .catch(error => next(error))
 })
 
-notesRouter.put('/:id', (request, response, next) => {
-  const id = request.params.id
-  const { content, important } = request.body
+notesRouter.put('/:id', async (request, response, next) => {
+  try {
+    const id = request.params.id
+    const { content, important } = request.body
 
-  Note.findById(id)
-    .then(note => {
-      if (!note) {
-        return response.status(404).end()
-      }
+    const note = await Note.findById(id)
+  
+    if (!note) {
+      return response.status(404).end()
+    }
 
-      note.content = content
-      note.important = important
+    note.content = content
+    note.important = important
 
-      // save() method provides full validation, correct choice for updating a single document
-      return note.save()
+    // save() method provides full validation, correct choice for updating a single document
+    const updatedNote = await note.save()  
+
+    await updatedNote.populate('user', {
+      username: 1,
+      name: 1  
     })
-    .then(updatedNote => {
-      response.json(updatedNote)
-    })
-    .catch(error => next(error))
+
+    response.json(updatedNote)
+
+  } catch (error) {
+    next(error)
+  }
 })
 
 module.exports = notesRouter

@@ -1,6 +1,16 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import Note from '../components/Note'
+
+import {
+  Button,
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableContainer, 
+  TableHead, 
+  TableRow, 
+  Paper 
+} from '@mui/material'
 
 const Notes = ({ notes }) => {
   
@@ -12,19 +22,41 @@ const Notes = ({ notes }) => {
     <div>
       <div>
         <h2 className='title-notes'>Notes</h2>
-        <button className='btn show' type='button' onClick={() => setShowAll(!showAll)}> Show {showAll ? 'Important' : 'All'}</button>
+        <Button className='btn show' type='button' onClick={() => setShowAll(!showAll)} variant='contained'> Show {showAll ? 'Important' : 'All'}</Button>
       </div>
+      
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Content</TableCell>
+              <TableCell>User</TableCell>
+              <TableCell>Important</TableCell>
+            </TableRow>
+          </TableHead>
 
-        <ul className='notes'>
-          {handleNoteShow.map(note => {
-            const color = note.important ? 'redText' : 'greyText'
-            return (
-              <li key={note.id} className={color}> 
-                <Link style={{ color: 'inherit' }} to={`/notes/${note.id}`}><span>{note.content}</span></Link>
-              </li>
-            )
-          })}
-       </ul>
+          <TableBody>
+            {handleNoteShow.map(note => {
+              const color = note.important ? 'redText' : 'greyText'
+              return (
+                <TableRow key={note.id}>
+                  <TableCell >
+                    <Link style={{ color: 'inherit' }} to={`/notes/${note.id}`}>
+                      <span className={color}>{note.content}</span>
+                    </Link>
+                  </TableCell>
+                  <TableCell>
+                    {note.user.name}
+                  </TableCell>
+                  <TableCell>
+                    {note.important ? 'yes' : ''}
+                  </TableCell>
+                </TableRow>
+              )
+            })}
+          </TableBody>
+        </Table>
+      </TableContainer>
     </div>
   )
 }

@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from 'react'
 import noteService from './services/notes'
 import loginService from './services/login'
@@ -10,6 +11,8 @@ import {
   useMatch  
 } from 'react-router-dom'
 
+import { AppBar, Toolbar, Button } from '@mui/material'
+
 import Home from './views/Home.jsx'
 import Create from './views/Create.jsx'
 import Notes from './views/Notes.jsx'
@@ -20,7 +23,6 @@ import Notification from './components/Notification'
 import Footer from './components/Footer'
 
 const App = () => {
-  const noteFormRef = useRef()
 
   /* states */
   const [notes, setNotes] = useState([])  
@@ -36,7 +38,7 @@ const App = () => {
   
   useEffect( () => {
     const fetchNotes = async () => {
-      const initialNotes = await noteService.getAll()
+      const initialNotes = await noteService.getAll()      
       setNotes(initialNotes)
     }
     
@@ -80,16 +82,14 @@ const App = () => {
 
   const addNote = async (noteObject) => {
    
-    try {
-      noteFormRef.current.toggleVisibility()
+    try {      
       const returnedNote = await noteService.create(noteObject)
       setNotes(prev => prev.concat(returnedNote))      
 
-      handleNotification(`"${returnedNote.content}" has been successfully added.`, 3000)
+      handleNotification(`"${returnedNote.content}" has been successfully added.`, 'success', 3000)
       
-    } catch (error) {
-      console.log(error)
-      handleNotification(error.message, 5000)
+    } catch (error) {      
+      handleNotification(error.message, 'error', 5000)
     }
   }
 
@@ -111,10 +111,10 @@ const App = () => {
       await noteService.remove(id)      
       setNotes(prev => prev.filter(n => n.id !== id))
  
-      handleNotification(`"${foundNote.content}" has been successfully removed.`, 3000)
+      handleNotification(`"${foundNote.content}" has been successfully removed.`, 'success', 3000)
 
     } catch (error) {
-      handleNotification(error.message, 5000)
+      handleNotification(error.message, 'error', 5000)
     }
   }
 
@@ -137,7 +137,7 @@ const App = () => {
 
     } catch (error) {
       const errorMessage = error.response?.data?.error || error.message
-      handleNotification(errorMessage, 5000)
+      handleNotification(errorMessage, 'error', 5000)
     }
   }
 
@@ -146,21 +146,21 @@ const App = () => {
     noteService.setToken(null)
     setUser(null)
 
-    handleNotification(`${user.username} logged out.`, 3000)
+    handleNotification(`${user.username} logged out.`, 'info', 3000)
   }
 
-  const handleNotification = (message, duration) => {
-    if(!message) return
+  const handleNotification = (text, severity, duration) => {
+    if(!text || !severity) return
 
-    setMessage(message)
+    setMessage({ text, severity })
 
     setTimeout(() => {
       setMessage(null)
     }, duration)
   }
 
-  // styles temporary
-  const padding = { padding: 10 }  
+  // styles
+  const style = { '&:hover': { 'textDecoration': 'underline' }}
   
   return (
     <div>     
@@ -172,11 +172,13 @@ const App = () => {
       <Notification message={message}/>
 
       
-      <div style={padding}>
-        <Link style={padding} to='/'>Home</Link>
-        <Link style={padding} to='/notes'>Notes</Link>
-        <Link style={padding} to='/create'>Create Note</Link>
-      </div>        
+      <AppBar position='static'>
+        <Toolbar className='toolbar' variant='dense'>
+          <Button className='link' component={Link} to='/' sx={style}>Home</Button>
+          <Button className='link' component={Link} to='/notes' sx={style}>Notes</Button>
+          <Button className='link' component={Link} to='/create' sx={style}>Create Note</Button>
+        </Toolbar>
+      </AppBar>        
 
       <Routes>
         <Route path='/notes/:id' element={
@@ -190,9 +192,10 @@ const App = () => {
 
         <Route path='/notes' element={
           <Notes notes={notes} />
-         } />
+        } />
+
         <Route path='/create' element={
-            user && <Create addNote={addNote} noteFormRef={noteFormRef} />       
+            user && <Create addNote={addNote} />       
         } />
         
         <Route path='/' element={<Home />} />

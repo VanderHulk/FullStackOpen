@@ -227,3 +227,35 @@ What problem does this solve?
 > 1.9.2026
 
 - Implemented a count down timer for logging user out when JWT has expired. Used `setInterval()` to update the countdown display and `setTimeout()` to trigger the handleLogout() function when the JWT expires.
+
+> 8.9.2026
+
+- Introducing UI libraries. Run `npm install @mui/material @emotion/react @emotion/styled`W
+
+- Wrapped `<App />` with `<Container>` in main.jsx
+
+- Converted the Notes list to an MUI Table
+  - Added Table, TableBody, TableCell, TableContainer, TableHead, TableRow, and Paper
+  - Displayed note content, user name, and importance
+  - Kept note links using React Router
+  - Kept All/Important filtering and importance styling
+
+- Added MUI Alert for notifications
+  - Notification state stores { text, severity }
+  - Alert displays the message according to its severity
+
+- Updated the Note form with MUI TextField and Button
+  - Removed Togglable so the Create Note form is always visible
+  - NoteForm uses useNavigate() to return to /notes after saving
+
+- Learned about styled-components as an alternative UI styling approach
+  - Decided to use MUI rather than styled-components for the Notes app
+
+> 10.9.2026
+
+- Updated frontend tests after removing Togglable
+  - Kept the old Togglable test as reference rather than active functionality
+  - Updated Note.test.jsx to pass the note and user to the test helper
+  - Wrapped NoteForm in MemoryRouter in NoteForm.test.jsx because it uses useNavigate()
+- All Notes frontend tests passed
+- All Notes E2E tests passed

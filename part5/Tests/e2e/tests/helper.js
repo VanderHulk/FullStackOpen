@@ -15,7 +15,9 @@ const login = async (page, username = 'root', password = 'secret') => {
 
 const createNote = async (page, content) => {
   await page.getByRole('link', { name: 'Create Note' }).click()
-  await page.getByRole('button', { name: 'New Note' }).click()
+  
+  await expect(page.getByRole('heading', { name: 'Create New Note' })).toBeVisible()
+
   await page.getByRole('textbox').fill(content)
   await page.getByRole('button', { name: 'Save' }).click()
 

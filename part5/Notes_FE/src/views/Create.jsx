@@ -1,12 +1,9 @@
 import NoteForm from '../components/NoteForm'
-import Togglable from '../components/Togglable'
 
-const Create = ({ addNote, noteFormRef }) => {
+const Create = ({ addNote }) => {
   return (
-    <div>
-      <Togglable buttonLabel='New Note' ref={noteFormRef}>
-        <NoteForm createNote={addNote} />
-      </Togglable>
+    <div>      
+      <NoteForm createNote={addNote} />      
     </div>
   )
 }
