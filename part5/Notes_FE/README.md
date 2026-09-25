@@ -230,7 +230,7 @@ What problem does this solve?
 
 > 8.9.2026
 
-- Introducing UI libraries. Run `npm install @mui/material @emotion/react @emotion/styled`W
+- Introducing UI libraries. Run `npm install @mui/material @emotion/react @emotion/styled`
 
 - Wrapped `<App />` with `<Container>` in main.jsx
 

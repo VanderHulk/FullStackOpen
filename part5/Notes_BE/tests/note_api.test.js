@@ -95,9 +95,9 @@ describe('when there is initially some notes saved', () => {
       const resultNote = await api
         .get(`/api/notes/${noteToView.id}`)
         .expect(200)
-        .expect('Content-Type', /application\/json/)  
+        .expect('Content-Type', /application\/json/)      
       
-      assert.deepStrictEqual(resultNote.body, noteToView)
+      assert.deepStrictEqual(resultNote.body, JSON.parse(JSON.stringify(noteToView)))
     })
 
     test('fails with statuscode 404 if note does not exist', async () => {
