@@ -1,5 +1,7 @@
 # Zustand Notes App
 
+Note: This is a practice project based on exercises from the Full Stack Open course. It is not an original project of my own.
+
 > 25.9.2026
 
 1. **Immutable state updates:** According to Zustand's documentation, state needs to be updated immutably.
