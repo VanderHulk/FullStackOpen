@@ -1,6 +1,18 @@
-const NoteForm = ({ onSubmit }) => {
+import { useNoteActions } from '../store/store'
+
+const NoteForm = () => {
+  const { add } = useNoteActions()
+
+  const addNote = async (e) => {
+    e.preventDefault()
+    
+    const content = e.target.note.value
+    await add(content)
+    e.target.reset()
+  }
+
   return (
-    <form className='m-5' onSubmit={onSubmit}>
+    <form className='m-5' onSubmit={addNote}>
       <input 
         name='note'
         type='text'

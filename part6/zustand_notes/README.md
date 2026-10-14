@@ -47,3 +47,15 @@ Note: This is a practice project based on exercises from the Full Stack Open cou
 15. Added useEffect to initialize existing notes from server into the app.
 
 16. Added `createNew` POST request for creating new note 
+
+17. Moved adding notes function to NoteForm.jsx
+
+> 14.10.2026
+
+18. Refactored store.js to handle note initialization and creation.
+
+19. Updated NoteForm.jsx to call the Zustand store's add action.
+
+20. Setup POST request to update importance in `notes.js`
+
+21. Refactored the toggleImportance action in store.js to use the POST request from notes.js.
